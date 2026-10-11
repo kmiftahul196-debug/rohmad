@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Untuk Kamu, Cintaku</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#1a0b2e;
+    --plum:#2b1247;
+    --wine:#5b1a3a;
+    --rose:#ff5c8a;
+    --blush:#ffd1dc;
+    --gold:#f6c177;
+    --text:#fbeaf0;
+    --script:'Great Vibes','Brush Script MT',cursive;
+    --serif:'Cormorant Garamond',Georgia,serif;
+    --sans:'Nunito',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--sans);color:var(--text);
+    background:linear-gradient(180deg,var(--night) 0%,var(--plum) 45%,var(--wine) 100%);
+    background-attachment:fixed;
+    overflow-x:hidden;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
+  #bg{z-index:0}
+  #fx{z-index:50}
+  section{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;text-align:center}
+  h2{font-family:var(--script);font-weight:400;font-size:clamp(2.6rem,7vw,4.2rem);color:var(--blush);margin-bottom:12px;text-shadow:0 0 24px rgba(255,92,138,.5)}
+  .sub{font-family:var(--serif);font-style:italic;font-size:1.25rem;color:#e9c3d2;margin-bottom:36px;max-width:34ch}
+
+  /* HERO */
+  #hero h1{
+    font-family:var(--script);font-weight:400;
+    font-size:clamp(3.4rem,13vw,8rem);line-height:1.05;
+    background:linear-gradient(100deg,#ffd1dc,#ff5c8a 40%,#f6c177 75%,#ffd1dc);
+    background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;
+    animation:shine 6s linear infinite, glow 3s ease-in-out infinite;
+  }
+  @keyframes shine{to{background-position:200% center}}
+  @keyframes glow{0%,100%{filter:drop-shadow(0 0 10px rgba(255,92,138,.45))}50%{filter:drop-shadow(0 0 28px rgba(255,92,138,.9))}}
+  #typed{font-family:var(--serif);font-style:italic;font-size:clamp(1.15rem,3.4vw,1.7rem);min-height:2.2em;margin-top:18px;color:var(--blush)}
+  #typed::after{content:'|';margin-left:2px;animation:blink 1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .heartbeat{font-size:3rem;margin-top:28px;display:inline-block;animation:beat 1.2s ease-in-out infinite;filter:drop-shadow(0 0 14px var(--rose))}
+  @keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.28)}30%{transform:scale(1)}45%{transform:scale(1.2)}}
+  .scroll-hint{position:absolute;bottom:28px;font-size:.9rem;color:#e9c3d2;animation:bob 2s ease-in-out infinite}
+  @keyframes bob{50%{transform:translateY(8px)}}
+
+  /* COUNTER */
+  .counter{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+  .box{min-width:92px;padding:18px 12px;border-radius:20px;background:rgba(255,255,255,.07);border:1px solid rgba(255,209,220,.25);backdrop-filter:blur(8px)}
+  .box b{display:block;font-family:var(--serif);font-size:2.4rem;font-weight:600;color:var(--gold)}
+  .box span{font-size:.85rem;color:#e9c3d2}
+
+  /* ENVELOPE */
+  .env-wrap{position:relative;width:min(340px,86vw);margin-top:10px}
+  .envelope{position:relative;width:100%;height:220px;background:linear-gradient(160deg,#ff7ea0,#d63d6e);border-radius:6px 6px 14px 14px;cursor:pointer;border:0;box-shadow:0 20px 50px rgba(0,0,0,.45);transition:transform .3s}
+  .envelope:hover{transform:translateY(-4px)}
+  .envelope:focus-visible{outline:3px solid var(--gold);outline-offset:4px}
+  .envelope::before{content:'';position:absolute;inset:0;border-radius:inherit;
+    background:linear-gradient(135deg,transparent 49.5%,rgba(0,0,0,.12) 50%) left/50% 100% no-repeat,
+               linear-gradient(225deg,transparent 49.5%,rgba(0,0,0,.12) 50%) right/50% 100% no-repeat}
+  .flap{position:absolute;top:0;left:0;width:100%;height:120px;background:linear-gradient(180deg,#ff95b1,#e04a78);clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .7s ease;z-index:3}
+  .seal{position:absolute;top:92px;left:50%;transform:translateX(-50%);font-size:2rem;z-index:4;transition:opacity .3s;animation:beat 1.4s infinite}
+  .envelope.open .flap{transform:rotateX(180deg);z-index:0}
+  .envelope.open .seal{opacity:0}
+  .hint{margin-top:16px;color:#e9c3d2;font-style:italic;font-family:var(--serif);font-size:1.1rem}
+  .paper{padding:36px 30px 40px;border-radius:14px;color:#4a1f33;text-align:left;background:linear-gradient(#fff6f8,#ffe6ee);box-shadow:0 20px 60px rgba(0,0,0,.5);font-family:var(--serif);font-size:1.3rem;line-height:1.75;white-space:pre-wrap;min-height:260px}
+  .paper .sign{font-family:var(--script);font-size:2.2rem;color:#c0305f;display:block;margin-top:16px}
+
+  /* READER (halaman khusus baca surat) */
+  .reader{
+    position:fixed;inset:0;z-index:40;overflow-y:auto;overscroll-behavior:contain;
+    background:radial-gradient(circle at 50% 0%,rgba(91,26,58,.94),rgba(26,11,46,.95) 70%);
+    clip-path:circle(0px at var(--cx,50%) var(--cy,50%));
+    visibility:hidden;
+    transition:clip-path .9s cubic-bezier(.65,0,.35,1),visibility 0s linear .9s;
+    padding:calc(96px + env(safe-area-inset-top,0px)) 20px calc(70px + env(safe-area-inset-bottom,0px));
+  }
+  .reader.open{
+    clip-path:circle(150% at var(--cx,50%) var(--cy,50%));
+    visibility:visible;
+    transition:clip-path .9s cubic-bezier(.65,0,.35,1),visibility 0s;
+  }
+  .reader-inner{max-width:620px;margin:0 auto;text-align:center}
+  .reader-inner .divider{font-size:1.6rem;margin:26px 0 0;animation:beat 1.4s ease-in-out infinite;display:inline-block}
+  .back{
+    position:fixed;left:16px;top:calc(16px + env(safe-area-inset-top,0px));z-index:5;
+    display:flex;align-items:center;gap:8px;height:46px;padding:0 20px;border-radius:999px;
+    border:1px solid rgba(255,209,220,.4);background:rgba(26,11,46,.65);color:var(--blush);
+    font-family:var(--sans);font-weight:600;font-size:1rem;cursor:pointer;backdrop-filter:blur(6px);
+    transition:background .2s,transform .2s;
+  }
+  .back:hover{background:rgba(255,92,138,.35);transform:translateX(-2px)}
+  .back:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+
+  /* GALLERY */
+  .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:26px;width:min(980px,100%)}
+  .photo{perspective:800px}
+  .frame{background:#fff;padding:12px 12px 44px;border-radius:6px;box-shadow:0 14px 34px rgba(0,0,0,.45);transition:transform .25s ease;transform-style:preserve-3d;color:#5b1a3a;font-family:var(--script);font-size:1.5rem}
+  .photo:nth-child(odd) .frame{rotate:-2deg}
+  .photo:nth-child(even) .frame{rotate:2deg}
+  .img{aspect-ratio:1;border-radius:3px;background:center/cover,linear-gradient(135deg,#ff9bb7,#a64ca6);display:grid;place-items:center;font-size:3rem;margin-bottom:10px}
+
+  /* ALASAN CINTA */
+  .ornament{display:flex;align-items:center;gap:14px;width:min(300px,76%);margin:0 auto 26px;color:var(--rose);font-size:1.1rem}
+  .ornament::before,.ornament::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(255,209,220,.65))}
+  .ornament::after{background:linear-gradient(270deg,transparent,rgba(255,209,220,.65))}
+  .dots{display:flex;gap:10px;justify-content:center;margin-bottom:10px}
+  .dots i{width:11px;height:11px;border-radius:50%;border:1px solid rgba(255,209,220,.55);transition:all .5s}
+  .dots i.on{background:var(--rose);border-color:var(--rose);box-shadow:0 0 12px var(--rose);transform:scale(1.15)}
+  .progress{font-size:.95rem;color:#e9c3d2;letter-spacing:.05em;margin-bottom:30px}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;width:min(980px,100%)}
+  .flip{height:210px;perspective:1000px;background:none;border:0;cursor:pointer;font:inherit;color:inherit;
+    opacity:0;transform:translateY(26px) scale(.96);
+    transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1);transition-delay:calc(var(--i)*110ms)}
+  .cards.in .flip{opacity:1;transform:none}
+  .cards.in .flip:not(.on):hover{transform:translateY(-8px);transition-delay:0s;transition-duration:.25s}
+  .flip:focus-visible{outline:3px solid var(--gold);outline-offset:5px;border-radius:20px}
+  .inner{position:relative;width:100%;height:100%;transition:transform .9s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d}
+  .flip.on .inner{transform:rotateY(180deg)}
+  .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:20px;overflow:hidden;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px 22px}
+  .face-front{background:linear-gradient(150deg,#ff6b95 0%,#c23a74 55%,#7a1f4d 100%);box-shadow:0 14px 34px rgba(255,92,138,.28),inset 0 1px 0 rgba(255,255,255,.35)}
+  .face-front::before{content:'';position:absolute;inset:9px;border:1px solid rgba(246,193,119,.6);border-radius:14px}
+  .face-front::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.28),transparent);transform:skewX(-18deg);animation:sweep 5s ease-in-out infinite}
+  .cards .flip:nth-child(2n) .face-front::after{animation-delay:1.4s}
+  .cards .flip:nth-child(3n) .face-front::after{animation-delay:2.8s}
+  @keyframes sweep{0%,55%{left:-60%}100%{left:130%}}
+  .num{font-family:var(--script);font-size:4rem;line-height:1;color:#fff4d6;text-shadow:0 2px 18px rgba(0,0,0,.35)}
+  .heart-mini{font-size:1rem;margin:6px 0 10px;color:var(--gold)}
+  .tap{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,238,244,.85)}
+  .face-back{background:linear-gradient(160deg,rgba(255,255,255,.14),rgba(255,255,255,.05));border:1px solid rgba(255,209,220,.4);
+    transform:rotateY(180deg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 14px 34px rgba(0,0,0,.35)}
+  .face-back::before{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+  .face-back .q{font-family:var(--serif);font-size:3rem;line-height:.6;color:var(--rose);height:22px}
+  .face-back p{font-family:var(--serif);font-style:italic;font-size:1.22rem;line-height:1.4;color:var(--blush);margin:6px 0 10px}
+  .face-back .tiny{font-size:.95rem;color:var(--gold)}
+  .finale{font-family:var(--script);font-size:clamp(1.8rem,5vw,2.6rem);color:var(--gold);margin-top:34px;min-height:2.6em;max-width:22ch;
+    opacity:0;transform:translateY(10px);transition:opacity 1.2s,transform 1.2s;text-shadow:0 0 22px rgba(246,193,119,.45)}
+  .finale.show{opacity:1;transform:none}
+  @media (max-width:820px){.cards{grid-template-columns:repeat(2,1fr);gap:18px}}
+  @media (max-width:480px){.cards{grid-template-columns:1fr;max-width:330px}.flip{height:190px}}
+
+  /* QUESTION */
+  #ask .big{font-family:var(--script);font-size:clamp(2.6rem,9vw,5rem);color:var(--blush);margin-bottom:34px;text-shadow:0 0 30px rgba(255,92,138,.7)}
+  .btns{position:relative;width:min(520px,100%);height:150px;display:flex;justify-content:center;align-items:flex-start;gap:24px}
+  .btn{font-family:var(--sans);font-weight:600;font-size:1.15rem;border:0;border-radius:999px;padding:14px 34px;cursor:pointer;transition:transform .2s,box-shadow .2s}
+  .yes{background:linear-gradient(135deg,#ff5c8a,#ff2d6f);color:#fff;box-shadow:0 8px 28px rgba(255,45,111,.55)}
+  .yes:hover{box-shadow:0 8px 40px rgba(255,45,111,.9)}
+  .no{background:rgba(255,255,255,.12);color:var(--text);border:1px solid rgba(255,209,220,.4);transition:left .25s,top .25s}
+  .btn:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+  #answer{font-family:var(--serif);font-size:1.5rem;color:var(--gold);min-height:2em;margin-top:6px}
+  footer{position:relative;z-index:1;text-align:center;padding:30px;color:#c9a0b3;font-size:.9rem}
+
+  /* cursor heart trail */
+  .trail{position:fixed;pointer-events:none;z-index:60;font-size:16px;animation:fadeup 1s ease-out forwards}
+  @keyframes fadeup{to{transform:translateY(-46px) scale(.3);opacity:0}}
+
+  /* reveal on scroll */
+  .reveal{opacity:0;transform:translateY(30px);transition:opacity 1s,transform 1s}
+  .reveal.in{opacity:1;transform:none}
+
+  #music{position:fixed;right:16px;top:calc(16px + env(safe-area-inset-top,0px));z-index:70;width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,209,220,.4);background:rgba(26,11,46,.6);color:var(--blush);font-size:1.2rem;cursor:pointer;backdrop-filter:blur(6px)}
+  #music:focus-visible{outline:3px solid var(--gold)}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    .reveal{opacity:1;transform:none}
+    .cards .flip{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg" aria-hidden="true"></canvas>
+<canvas id="fx" aria-hidden="true"></canvas>
+<button id="music" aria-label="Putar musik" title="Musik berulang">♪</button>
+
+<!-- ============ HERO ============ -->
+<section id="hero">
+  <h1 id="title">Untuk</h1>
+  <p id="typed" aria-live="polite"></p>
+  <span class="heartbeat" aria-hidden="true">❤</span>
+  <div class="scroll-hint">Geser ke bawah ↓</div>
+</section>
+
+<!-- ============ COUNTER ============ -->
+<section id="time">
+  <h2 class="reveal">Waktu yang telah berlalu</h2>
+  <p class="sub reveal">Setiap detik terasa berharga aku masih mencintai mu sampai sekarang.</p>
+  <div class="counter reveal" id="counter">
+    <div class="box"><b id="c-y">0</b><span>tahun</span></div>
+    <div class="box"><b id="c-d">0</b><span>hari</span></div>
+    <div class="box"><b id="c-h">0</b><span>jam</span></div>
+    <div class="box"><b id="c-m">0</b><span>menit</span></div>
+    <div class="box"><b id="c-s">0</b><span>detik</span></div>
+  </div>
+</section>
+
+<!-- ============ LETTER ============ -->
+<section id="letter">
+  <h2 class="reveal">Surat Kecil Untukmu</h2>
+  <div class="env-wrap reveal">
+    <button class="envelope" id="envelope" aria-label="Buka surat" aria-expanded="false">
+      <div class="flap"></div>
+      <div class="seal">💌</div>
+    </button>
+  </div>
+  <p class="hint" id="envHint">Ketuk amplopnya ya…</p>
+</section>
+
+<!-- ============ GALLERY ============ -->
+<section id="memories">
+  <h2 class="reveal">Kenangan Kita</h2>
+  <p class="sub reveal">foto yang selalu mengingatkan aku pada kecantikan mu.</p>
+  <div class="gallery reveal" id="gallery"></div>
+</section>
+
+<!-- ============ REASONS ============ -->
+<section id="reasons">
+  <h2 class="reveal">Alasan Aku Mencintaimu</h2>
+  <div class="ornament reveal" aria-hidden="true">❤</div>
+  <p class="sub reveal">Ketuk setiap kartu untuk membukanya.</p>
+  <div class="dots reveal" id="dots" aria-hidden="true"></div>
+  <p class="progress reveal" id="progress" aria-live="polite"></p>
+  <div class="cards" id="cards"></div>
+  <p class="finale" id="finale" aria-live="polite"></p>
+</section>
+
+<!-- ============ QUESTION ============ -->
+<section id="ask">
+  <div class="big reveal" id="question">Mau nggak kita mulai dari awal lagi?</div>
+  <div class="btns reveal" id="btns">
+    <button class="btn yes" id="yes" type="button">Mau 💖</button>
+    <button class="btn no" id="no" type="button">Tidak</button>
+  </div>
+  <p id="answer" aria-live="polite"></p>
+</section>
+
+<footer>Dibuat dengan ❤ untuk seseorang yang paling spesial</footer>
+
+<!-- ============ HALAMAN BACA SURAT ============ -->
+<div class="reader" id="reader" role="dialog" aria-modal="true" aria-labelledby="readerTitle" aria-hidden="true" inert>
+  <button class="back" id="back" type="button">← Kembali</button>
+  <div class="reader-inner">
+    <h2 id="readerTitle">Surat Untukmu</h2>
+    <p class="sub" style="margin-inline:auto">Baca pelan-pelan ya, ini dari hatiku.</p>
+    <div class="paper" id="paper"></div>
+    <span class="divider" aria-hidden="true">💗</span>
+  </div>
+</div>
+
+<audio id="song" src="romantis.mp3" autoplay loop preload="auto"></audio>
+
+<script>
+/* =====================================================
+   CONFIG — EDIT BAGIAN INI SAJA
+   ===================================================== */
+const CONFIG = {
+  namaKamu: "untuk liya",                 // nama pasanganmu
+  namaAku:  "rohmad",                    // namamu
+  tanggalJadian: "2023-02-14T00:00:00", // format: TAHUN-BULAN-TANGGALTJAM
+  kalimatHero: [
+    "Kamu adalah alasan aku tersenyum setiap hari.",
+    "Bersamamu, dunia terasa lebih indah.",
+    "Terima kasih sudah hadir dalam hidupku."
+  ],
+  surat:
+`untuk mu,
+
+
+maaf ini mungkin menge jutkan tapi aku ingin kamu tahu betapa berharganya dirimu bagiku. maaf ya aku belum bisa membuat mu bahagia.
+
+dulu waktu kamu masih sama aku aku justru sibuk dengan peker ja anku sampai lupa untuk memperhatikan mu 
+
+maaf ya dulu aku tidak bisa meng hubungi mu di siang hari karena aku sibuk dengan peker ja anku dan maaf ya aku hanya bisa menemanimu di malam hari karena aku sibuk dengan peker ja anku
+
+tapi sekarang aku sadar bahwa aku tidak bisa terus seperti itu, aku ingin selalu ada untuk mu dan aku ingin selalu membuat mu bahagia
+
+andai kita bisa memulai dari awal lagi
+
+Aku mencintaimu lebih dari kata-kata yang bisa kuungkapkan.
+
+`,
+  foto: [   // isi "src" dengan nama file / link foto, kosongkan jika belum ada
+    { src: "4.jpeg", caption: "aku suka memandangi foto mu", emoji: "🌹" },
+    { src: "2.jpg", caption: "aku rindu senyum mu",       emoji: "😍" },
+    { src: "1.jpg", caption: "semangat terus ya",   emoji: "🌅" },
+    { src: "3.jpg", caption: "Selalu bersamamu",   emoji: "💑" }
+  ],
+  alasan: [
+    "Senyummu selalu membuat hari terburukku jadi indah.",
+    "Kamu lah alasanku tetep bertahan di sini.",
+    "Cara kamu tertawa itu candu.",
+    "Kamu membuatku merasa dicintai.",
+    "kamu adalah tempat paling nyaman.",
+    "Karena kamu adalah kamu."
+  ],
+  pesanYa: "Terima kasih, aku akan membuatmu bahagia selamanya 💖"
+};
+
+/* =====================================================
+   HERO
+   ===================================================== */
+document.getElementById('title').textContent = "Untuk " + CONFIG.namaKamu;
+
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const typedEl = document.getElementById('typed');
+let li = 0, ci = 0, deleting = false;
+function loopType(){
+  const text = CONFIG.kalimatHero[li];
+  if(reduce){ typedEl.textContent = text; return; }
+  typedEl.textContent = text.slice(0, ci);
+  let delay = deleting ? 25 : 65;
+  if(!deleting && ci === text.length){ delay = 1800; deleting = true; }
+  else if(deleting && ci === 0){ deleting = false; li = (li+1) % CONFIG.kalimatHero.length; delay = 400; }
+  else ci += deleting ? -1 : 1;
+  setTimeout(loopType, delay);
+}
+loopType();
+
+/* =====================================================
+   COUNTER
+   ===================================================== */
+const start = new Date(CONFIG.tanggalJadian).getTime();
+function tick(){
+  let diff = Math.max(0, Date.now() - start);
+  const s = Math.floor(diff/1000);
+  const y = Math.floor(s/31536000);
+  const d = Math.floor((s%31536000)/86400);
+  const h = Math.floor((s%86400)/3600);
+  const m = Math.floor((s%3600)/60);
+  document.getElementById('c-y').textContent = y;
+  document.getElementById('c-d').textContent = d;
+  document.getElementById('c-h').textContent = h;
+  document.getElementById('c-m').textContent = m;
+  document.getElementById('c-s').textContent = s%60;
+}
+tick(); setInterval(tick, 1000);
+
+/* =====================================================
+   SURAT: amplop -> halaman baca khusus
+   ===================================================== */
+const env = document.getElementById('envelope');
+const reader = document.getElementById('reader');
+const paper = document.getElementById('paper');
+const backBtn = document.getElementById('back');
+const envHint = document.getElementById('envHint');
+let readerOpen = false, busy = false, pushed = false, typed = false, typeTimer = null;
+
+function typeLetter(){
+  const text = CONFIG.surat;
+  if(reduce){ paper.textContent = text; addSign(); typed = true; return; }
+  let i = 0;
+  (function step(){
+    paper.textContent = text.slice(0, i++);
+    if(i <= text.length) typeTimer = setTimeout(step, 28);
+    else { addSign(); typed = true; }
+  })();
+}
+function addSign(){
+  const s = document.createElement('span');
+  s.className = 'sign';
+  s.textContent = "— " + CONFIG.namaAku + " ❤";
+  paper.appendChild(s);
+}
+
+function openReader(){
+  if(readerOpen || busy) return;
+  busy = true;
+  // titik awal transisi = posisi amplop
+  const r = env.getBoundingClientRect();
+  reader.style.setProperty('--cx', (r.left + r.width/2) + 'px');
+  reader.style.setProperty('--cy', (r.top + r.height/2) + 'px');
+
+  env.classList.add('open');                    // 1) tutup amplop terbuka
+  env.setAttribute('aria-expanded','true');
+  burst(r.left + r.width/2, r.top + r.height/2, 26);
+
+  setTimeout(() => {                            // 2) transisi ke halaman baca
+    readerOpen = true;
+    reader.inert = false;
+    reader.setAttribute('aria-hidden','false');
+    reader.scrollTop = 0;
+    reader.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    try{ history.pushState({reader:1}, '', '#surat'); pushed = true; }catch(e){ pushed = false; }
+    setTimeout(() => { backBtn.focus({preventScroll:true}); busy = false; if(!typed && !typeTimer) typeLetter(); }, 700);
+  }, 750);
+}
+
+function closeReader(){
+  if(!readerOpen) return;
+  readerOpen = false; busy = true;
+  reader.classList.remove('open');
+  reader.setAttribute('aria-hidden','true');
+  reader.inert = true;
+  document.body.style.overflow = '';
+  setTimeout(() => {                            // amplop menutup lagi
+    env.classList.remove('open');
+    env.setAttribute('aria-expanded','false');
+    envHint.textContent = "Ketuk lagi kalau mau baca ulang 💌";
+    env.focus({preventScroll:true});
+    busy = false;
+  }, 700);
+}
+
+env.addEventListener('click', openReader);
+backBtn.addEventListener('click', () => { if(pushed){ history.back(); } else closeReader(); });
+addEventListener('popstate', () => { if(readerOpen){ pushed = false; closeReader(); } });
+addEventListener('keydown', e => { if(e.key === 'Escape' && readerOpen) backBtn.click(); });
+
+/* =====================================================
+   GALLERY (tilt 3D on hover)
+   ===================================================== */
+const gal = document.getElementById('gallery');
+CONFIG.foto.forEach(f => {
+  const wrap = document.createElement('div');
+  wrap.className = 'photo';
+  wrap.innerHTML = `<div class="frame"><div class="img" style="${f.src ? `background-image:url('${f.src}')` : ''}">${f.src ? '' : f.emoji}</div>${f.caption}</div>`;
+  const frame = wrap.firstChild;
+  wrap.addEventListener('mousemove', e => {
+    const r = wrap.getBoundingClientRect();
+    const x = (e.clientX - r.left)/r.width - .5;
+    const y = (e.clientY - r.top)/r.height - .5;
+    frame.style.transform = `rotateY(${x*18}deg) rotateX(${-y*18}deg) scale(1.04)`;
+  });
+  wrap.addEventListener('mouseleave', () => frame.style.transform = '');
+  gal.appendChild(wrap);
+});
+
+/* =====================================================
+   ALASAN CINTA (kartu flip + progres)
+   ===================================================== */
+const cards = document.getElementById('cards');
+const dots = document.getElementById('dots');
+const progress = document.getElementById('progress');
+const finale = document.getElementById('finale');
+const opened_ = new Set();
+CONFIG.alasan.forEach((t, i) => {
+  const d = document.createElement('i'); dots.appendChild(d);
+  const b = document.createElement('button');
+  b.className = 'flip'; b.type = 'button';
+  b.style.setProperty('--i', i);
+  b.setAttribute('aria-pressed','false');
+  b.setAttribute('aria-label', 'Alasan ke-' + (i+1) + ', ketuk untuk membuka');
+  b.innerHTML =
+    `<div class="inner">
+       <div class="face face-front"><span class="num">${i+1}</span><span class="heart-mini">❤</span><span class="tap">ketuk untuk membuka</span></div>
+       <div class="face face-back"><span class="q">“</span><p>${t}</p><span class="tiny">❤</span></div>
+     </div>`;
+  b.addEventListener('click', () => {
+    const on = b.classList.toggle('on');
+    b.setAttribute('aria-pressed', on);
+    b.setAttribute('aria-label', 'Alasan ke-' + (i+1) + (on ? ': ' + t : ', ketuk untuk membuka'));
+    const r = b.getBoundingClientRect();
+    if(on){ burst(r.left + r.width/2, r.top + r.height/2, 10); opened_.add(i); }
+    updateReasons();
+  });
+  cards.appendChild(b);
+});
+function updateReasons(){
+  const n = opened_.size, total = CONFIG.alasan.length;
+  [...dots.children].forEach((d, i) => d.classList.toggle('on', opened_.has(i)));
+  progress.textContent = n === total ? "Semua alasan sudah terbuka 💞" : n + " dari " + total + " alasan terbuka";
+  if(n === total && !finale.classList.contains('show')){
+    finale.textContent = "Dan masih ada seribu alasan lain yang belum sempat kutulis…";
+    finale.classList.add('show');
+    heartFirework(innerWidth*.5, innerHeight*.45, '#ff5c8a');
+    setTimeout(() => heartFirework(innerWidth*.3, innerHeight*.4, '#f6c177'), 350);
+    setTimeout(() => heartFirework(innerWidth*.7, innerHeight*.4, '#ffd1dc'), 700);
+  }
+}
+updateReasons();
+
+/* =====================================================
+   YES / NO
+   ===================================================== */
+const yes = document.getElementById('yes');
+const no  = document.getElementById('no');
+const btns = document.getElementById('btns');
+const answer = document.getElementById('answer');
+let yesScale = 1;
+const noTexts = ["Tidak", "Yakin?", "Coba pikir lagi…", "Please? 🥺", "Jangan gitu dong", "Klik yang satunya 💖"];
+let noCount = 0;
+function dodge(){
+  noCount++;
+  no.textContent = noTexts[Math.min(noCount, noTexts.length-1)];
+  const bw = btns.clientWidth - no.offsetWidth;
+  const bh = btns.clientHeight - no.offsetHeight;
+  no.style.position = 'absolute';
+  no.style.left = Math.random()*bw + 'px';
+  no.style.top  = Math.random()*bh + 'px';
+  yesScale = Math.min(2.2, yesScale + .15);
+  yes.style.transform = `scale(${yesScale})`;
+}
+no.addEventListener('mouseenter', dodge);
+no.addEventListener('touchstart', e => { e.preventDefault(); dodge(); }, {passive:false});
+no.addEventListener('click', dodge);
+
+yes.addEventListener('click', () => {
+  answer.textContent = CONFIG.pesanYa;
+  document.getElementById('question').textContent = "makasih manusia faforit ku 💞";
+  no.style.display = 'none';
+  yes.disabled = true;
+  fireworks();
+  heartRain = true;
+});
+
+/* =====================================================
+   BACKGROUND: stars + falling hearts/petals
+   ===================================================== */
+const bg = document.getElementById('bg'), bctx = bg.getContext('2d');
+const fx = document.getElementById('fx'), fctx = fx.getContext('2d');
+let W, H, DPR;
+function resize(){
+  DPR = Math.min(devicePixelRatio || 1, 2);
+  W = innerWidth; H = innerHeight;
+  for(const c of [bg, fx]){ c.width = W*DPR; c.height = H*DPR; c.getContext('2d').setTransform(DPR,0,0,DPR,0,0); }
+}
+resize(); addEventListener('resize', resize);
+
+const stars = Array.from({length: 120}, () => ({
+  x: Math.random(), y: Math.random(), r: Math.random()*1.4 + .3, p: Math.random()*6.28, s: .5 + Math.random()*1.5
+}));
+const glyphs = ['❤','💖','💗','🌸','✿','💕'];
+const falling = [];
+let heartRain = false;
+function spawnFalling(){
+  falling.push({
+    x: Math.random()*W, y: -20, size: 12 + Math.random()*22,
+    vy: .5 + Math.random()*1.2, vx: (Math.random()-.5)*.6,
+    sw: Math.random()*6.28, ss: .01 + Math.random()*.02,
+    g: glyphs[Math.floor(Math.random()*glyphs.length)],
+    a: .35 + Math.random()*.5
+  });
+}
+function drawBg(t){
+  bctx.clearRect(0,0,W,H);
+  for(const s of stars){
+    const a = .35 + .65*Math.abs(Math.sin(t/1000*s.s + s.p));
+    bctx.globalAlpha = a; bctx.fillStyle = '#fff';
+    bctx.beginPath(); bctx.arc(s.x*W, s.y*H, s.r, 0, 6.28); bctx.fill();
+  }
+  if(!reduce && Math.random() < (heartRain ? .6 : .06)) spawnFalling();
+  for(let i = falling.length-1; i >= 0; i--){
+    const p = falling[i];
+    p.y += p.vy; p.sw += p.ss; p.x += p.vx + Math.sin(p.sw)*.6;
+    bctx.globalAlpha = p.a;
+    bctx.font = p.size + 'px serif';
+    bctx.fillText(p.g, p.x, p.y);
+    if(p.y > H + 30) falling.splice(i,1);
+  }
+  bctx.globalAlpha = 1;
+}
+
+/* =====================================================
+   FX: click bursts + fireworks (hearts)
+   ===================================================== */
+const parts = [];
+function burst(x, y, n = 14){
+  if(reduce) return;
+  for(let i = 0; i < n; i++){
+    const a = Math.random()*6.28, v = 1.5 + Math.random()*4;
+    parts.push({x, y, vx: Math.cos(a)*v, vy: Math.sin(a)*v - 1.5, life: 1, d: .012 + Math.random()*.012,
+      size: 12 + Math.random()*14, g: glyphs[Math.floor(Math.random()*glyphs.length)], grav: .06});
+  }
+}
+function heartShape(t){ // parametric heart
+  return { x: 16*Math.pow(Math.sin(t),3),
+           y: -(13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t)) };
+}
+function heartFirework(cx, cy, color){
+  for(let i = 0; i < 70; i++){
+    const t = (i/70)*6.28, h = heartShape(t);
+    parts.push({x: cx, y: cy, vx: h.x*.28, vy: h.y*.28, life: 1, d: .008, size: 3.5, color, grav: .012, dot: true});
+  }
+}
+function fireworks(){
+  const colors = ['#ff5c8a','#ffd1dc','#f6c177','#ff2d6f','#fff'];
+  let n = 0;
+  const id = setInterval(() => {
+    heartFirework(W*(.15 + Math.random()*.7), H*(.15 + Math.random()*.45), colors[n % colors.length]);
+    burst(W*Math.random(), H*.5, 8);
+    if(++n > 14) clearInterval(id);
+  }, 450);
+}
+function drawFx(){
+  fctx.clearRect(0,0,W,H);
+  for(let i = parts.length-1; i >= 0; i--){
+    const p = parts[i];
+    p.x += p.vx; p.y += p.vy; p.vy += p.grav; p.life -= p.d;
+    if(p.life <= 0){ parts.splice(i,1); continue; }
+    fctx.globalAlpha = p.life;
+    if(p.dot){
+      fctx.fillStyle = p.color; fctx.shadowColor = p.color; fctx.shadowBlur = 10;
+      fctx.beginPath(); fctx.arc(p.x, p.y, p.size*p.life + .5, 0, 6.28); fctx.fill();
+      fctx.shadowBlur = 0;
+    } else {
+      fctx.font = p.size + 'px serif'; fctx.fillText(p.g, p.x, p.y);
+    }
+  }
+  fctx.globalAlpha = 1;
+}
+function loop(t){ drawBg(t); drawFx(); requestAnimationFrame(loop); }
+requestAnimationFrame(loop);
+
+// click / tap anywhere → hearts burst
+addEventListener('pointerdown', e => {
+  if(e.target.closest('#no')) return;
+  burst(e.clientX, e.clientY, 12);
+});
+
+// cursor heart trail (mouse only)
+let lastTrail = 0;
+addEventListener('pointermove', e => {
+  if(reduce || e.pointerType !== 'mouse') return;
+  const now = performance.now();
+  if(now - lastTrail < 70) return;
+  lastTrail = now;
+  const h = document.createElement('span');
+  h.className = 'trail';
+  h.textContent = glyphs[Math.floor(Math.random()*glyphs.length)];
+  h.style.left = e.clientX + 'px'; h.style.top = e.clientY + 'px';
+  document.body.appendChild(h);
+  setTimeout(() => h.remove(), 1000);
+});
+
+/* =====================================================
+   SCROLL REVEAL
+   ===================================================== */
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+}), {threshold: .2});
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+new IntersectionObserver((es, o) => es.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); o.disconnect(); } }), {threshold: .08}).observe(cards);
+
+/* =====================================================
+   MUSIK (file MP3: romantis.mp3)
+   - Lagu berulang dan tetap aktif saat surat dibuka.
+   - Jika autoplay diblokir browser, lagu mulai pada interaksi pertama.
+   ===================================================== */
+const song = document.getElementById('song');
+const musicBtn = document.getElementById('music');
+song.volume = 0.7;
+function syncMusicBtn(){
+  const on = !song.paused;
+  musicBtn.textContent = '♪';
+  musicBtn.setAttribute('aria-label', on ? 'Musik sedang diputar' : 'Putar musik');
+}
+song.addEventListener('play', syncMusicBtn);
+song.addEventListener('pause', syncMusicBtn);
+song.addEventListener('error', () => {
+  musicBtn.title = 'File romantis.mp3 tidak ditemukan (taruh di folder yang sama dengan file HTML)';
+});
+function startMusic(){
+  if(!song.paused) return;
+  song.play().then(() => {
+    document.removeEventListener('pointerdown', startMusic);
+    document.removeEventListener('keydown', startMusic);
+  }).catch(error => {
+    if(error.name !== 'NotAllowedError'){
+      musicBtn.title = 'Lagu tidak bisa diputar. Pastikan file romantis.mp3 tersedia.';
+    }
+  });
+}
+musicBtn.addEventListener('click', startMusic);
+document.addEventListener('pointerdown', startMusic);
+document.addEventListener('keydown', startMusic);
+startMusic();
+</script>
+</body>
+</html>
